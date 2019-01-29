@@ -5,7 +5,11 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-public class Utils {
+@SuppressWarnings("Duplicates")
+
+public final class Utils {
+	private Utils() {}
+
 	public static boolean isEven(int i) {
 		return i%2 == 0;
 	}
@@ -17,9 +21,7 @@ public class Utils {
 	public static ArrayList<Integer> toIntArray(ArrayList<String> in) {
 		ArrayList<Integer> out = new ArrayList<Integer>();
 		try {
-			for(String s : in) {
-				out.add(Integer.parseInt(s));
-			}
+			in.forEach(String -> out.add(Integer.parseInt(String)));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -52,9 +54,7 @@ public class Utils {
 	
 	public static HashMap<Integer,Integer> getIntFrequencies(ArrayList<Integer> list) {
 		HashMap<Integer,Integer> map = new HashMap<Integer,Integer>();
-		for(int i : list) {
-			map.put(i, map.getOrDefault(i, 0)+1);
-		}
+		list.forEach(Integer -> map.put(Integer, map.getOrDefault(Integer, 0)+1));
 		return map;
 	}
 	
