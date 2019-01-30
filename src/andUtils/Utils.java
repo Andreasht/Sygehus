@@ -1,7 +1,10 @@
 package andUtils;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -74,6 +77,17 @@ public final class Utils {
 	public static void rmChar(ArrayList<Character> list, char c) {
 		list.removeAll(Collections.singleton(Character.toLowerCase(c)));
 		list.removeAll(Collections.singleton(Character.toUpperCase(c)));
+	}
+
+	public static void setUIFont(String fontName, int style, int size){
+		javax.swing.plaf.FontUIResource f = new javax.swing.plaf.FontUIResource(fontName, style, size);
+		java.util.Enumeration keys = UIManager.getDefaults().keys();
+		while (keys.hasMoreElements()) {
+			Object key = keys.nextElement();
+			Object value = UIManager.get (key);
+			if (value instanceof javax.swing.plaf.FontUIResource)
+				UIManager.put (key, f);
+		}
 	}
 
 }
