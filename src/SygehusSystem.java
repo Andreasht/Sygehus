@@ -71,6 +71,7 @@ class SygehusSystem {
             panel.add(button2);
 
 
+
             button1.addActionListener(e -> drawLogin());
             button2.addActionListener(e -> drawSignup());
 
@@ -111,6 +112,7 @@ class SygehusSystem {
                 panel.add(f);
             }
 
+
             JButton logInButton = new JButton("Login");
             logInButton.setBounds(400, 550,200,50);
             panel.add(logInButton);
@@ -150,6 +152,7 @@ class SygehusSystem {
             labels.add(new JLabel("Brugernavn:"));
             labels.add(new JLabel("Kodeord:"));
             labels.add(new JLabel("Confirm kodeord:"));
+            labels.add(new JLabel("Vælg type bruger:"));
 
             JTextField navnField = new JTextField();
             JTextField brugerField = new JTextField();
@@ -162,19 +165,22 @@ class SygehusSystem {
             fields.add(kodeField);
             fields.add(confKodeField);
 
-            int y = 200;
+            int y = 100;
             for(JLabel l : labels) {
                 l.setBounds(350, y, 150, 150);
                 y = y + 100;
                 panel.add(l);
             }
-            y = 250;
+            y = 150;
             for(JTextComponent f : fields) {
                 f.setBounds(480,y,150,50);
                 y = y + 100;
                 panel.add(f);
             }
 
+            JComboBox roleList = new JComboBox(Bruger.ROLE_LIST);
+            roleList.setBounds(480,550,150,50);
+            panel.add(roleList);
             JButton createUserButton = new JButton("Lav bruger");
             createUserButton.setBounds(400, 650,200,50);
             panel.add(createUserButton);
@@ -183,6 +189,7 @@ class SygehusSystem {
                 String n = navnField.getText();
                 String bN = brugerField.getText();
                 char[] k = kodeField.getPassword();
+                String r = (String) roleList.getSelectedItem();
                 boolean duplicateName = false;
                 for (Bruger bruger : brugerListe) {
                     if (bruger.getBrugernavn().equals(bN)) {
@@ -195,7 +202,7 @@ class SygehusSystem {
                 } else if (duplicateName) {
                     new PopUp().infoBox("En bruger med dette brugernavn findes allerede.");
                 } else {
-                    Bruger temp = new Bruger(n, bN, k);
+                    Bruger temp = new Bruger(n, bN, k, r);
                     brugerListe.add(temp);
                     System.out.println("En ny bruger blev lavet. Info:"+"\n"+n+"\n"+bN+"\n"+ Arrays.toString(k));
                     saveList();
@@ -214,8 +221,9 @@ class SygehusSystem {
             redrawBasic();
             panel.add(Box.createRigidArea(new Dimension(0,300)));
             JLabel profileLabel = new JLabel("Du er logget ind som: " + activeBruger.getNavn() +" / "+activeBruger.getBrugernavn());
-
+            JLabel roleLabel = new JLabel("Du har rollen: " + activeBruger.getRolle());
             panel.add(profileLabel);
+            panel.add(roleLabel);
             refreshFrame();
         }
 
@@ -223,7 +231,6 @@ class SygehusSystem {
             frame.getContentPane().removeAll();
             panel = new JPanel();
             frame.setContentPane(panel);
-
         }
 
         void refreshFrame() {
@@ -231,8 +238,6 @@ class SygehusSystem {
             frame.repaint();
             frame.setVisible(true);
         }
-
-
 
     }
 
@@ -274,8 +279,6 @@ class SygehusSystem {
             Image newImage = image.getScaledInstance(w,h,Image.SCALE_DEFAULT);
             g.drawImage(newImage, 0,0,this);
         }
-
-
     }
 
     class PopUp
