@@ -32,6 +32,8 @@ class SygehusSystem {
             loadList();
             System.out.println("Liste loadet.");
         }
+        char[] adminKode = {'a','d','m','i','n'};
+        brugerListe.add(new Bruger("Systemadministrator","admin",adminKode,"Admin"));
 
         new SygehusGUI();
     }
@@ -63,19 +65,11 @@ class SygehusSystem {
             image.setBounds(300,100,420,122);
 
             JButton button1 = new JButton("Login");
-            button1.setBounds(400,300,200,50);
-            JButton button2 = new JButton("Lav ny bruger");
-            button2.setBounds(400,400,200,50);
+            button1.setBounds(400,350,200,50);
 
             panel.add(button1);
-            panel.add(button2);
-
-
 
             button1.addActionListener(e -> drawLogin());
-            button2.addActionListener(e -> drawSignup());
-
-
 
             frame.setContentPane(panel);
             frame.setSize(1000,1000);
@@ -171,6 +165,7 @@ class SygehusSystem {
                 y = y + 100;
                 panel.add(l);
             }
+
             y = 150;
             for(JTextComponent f : fields) {
                 f.setBounds(480,y,150,50);
@@ -178,6 +173,7 @@ class SygehusSystem {
                 panel.add(f);
             }
 
+            //noinspection unchecked
             JComboBox roleList = new JComboBox(Bruger.ROLE_LIST);
             roleList.setBounds(480,550,150,50);
             panel.add(roleList);
@@ -219,12 +215,18 @@ class SygehusSystem {
 
         void drawProfile() {
             redrawBasic();
-            panel.add(Box.createRigidArea(new Dimension(0,300)));
+            panel.add(Box.createRigidArea(new Dimension(300,200)));
+            panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
             JLabel profileLabel = new JLabel("Du er logget ind som: " + activeBruger.getNavn() +" / "+activeBruger.getBrugernavn());
-            JLabel roleLabel = new JLabel("Du har rollen: " + activeBruger.getRolle());
+            JLabel roleLabel = new JLabel("Du har rollen: " + activeBruger.getRolle() + " Dette giver dig følgende muligheder:");
             panel.add(profileLabel);
             panel.add(roleLabel);
             refreshFrame();
+        }
+
+        void drawAdmin() {
+            JButton lavBruger = new JButton("Opret ny bruger");
+            JButton skiftRoller = new JButton("Administrer roller");
         }
 
         void redrawBasic() {
@@ -238,7 +240,6 @@ class SygehusSystem {
             frame.repaint();
             frame.setVisible(true);
         }
-
     }
 
     private void saveList() {
