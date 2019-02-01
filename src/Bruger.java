@@ -1,27 +1,26 @@
 import java.util.Arrays;
 
-class Bruger implements java.io.Serializable {
-    Status status;
-    private static int antalBrugere;
-    private int id;
+public class Bruger implements java.io.Serializable {
+    private Status status;
+    static int antalBrugere;
+ //   private int id;
     private String navn;
     private String brugernavn;
     private char[] kodeord;
-    private String rolle;
     static final String[] ROLE_LIST = {"Admin","Læge","Sygeplejerske","Andet"};
 
     Bruger() {
-        id = antalBrugere + 1;
-        antalBrugere++;
+        navn = "Test";
+        status = Status.OPT;
     }
 
-    Bruger(String n, String bN, char[] k, String r) {
+    Bruger(String n, String bN, char[] k) {
         navn = n;
         brugernavn = bN;
         kodeord = k;
-        rolle = r;
-        id = antalBrugere + 1;
+   //     id = antalBrugere + 1;
         antalBrugere++;
+        status = Status.LEDIG;
     }
 
     public String getBrugernavn() {
@@ -32,15 +31,34 @@ class Bruger implements java.io.Serializable {
         return navn;
     }
 
-    public int getId() {
+  /*  public int getId() {
         return id;
-    }
+    } */
 
     boolean authenticate(char[] kodeIn) {
         return Arrays.equals(this.kodeord, kodeIn);
     }
 
-    public String getRolle() {
-        return rolle;
+    String getStatus() {
+        return status.getText();
+    }
+
+    void setStatus(int stat) {
+        switch(stat) {
+            case 0: status = Status.LEDIG; break;
+            case 1: status = Status.OPT; break;
+            case 2: status = Status.FRAV; break;
+            case 3: status = Status.PAUSE; break;
+            default: System.out.println("Der skete en fejl i setStatus()"); break;
+        }
+    }
+
+    String getRolle() {
+        return getClass().toString().substring(6);
+    }
+
+    public static void main(String[] args) {
+        Bruger bruger = new Bruger();
+        System.out.println(bruger.getStatus());
     }
 }

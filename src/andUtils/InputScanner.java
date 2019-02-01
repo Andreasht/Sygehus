@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-public class InputScanner {
+class InputScanner {
 	public static String getInput() {
 		String inputLine = null;
 		try {

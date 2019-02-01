@@ -1,7 +1,7 @@
 public enum Status {
     LEDIG ("Ledig"),
-    OPTAGET ("\\u001b[31m Optaget"),
-    FRAVAER ("Fraværende"),
+    OPT ("Optaget"),
+    FRAV ("Fraværende"),
     PAUSE ("Pause");
 
     private final String text;

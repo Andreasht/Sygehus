@@ -2,11 +2,12 @@ package andUtils;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-public class FileScanner {
+class FileScanner {
 
 	public static String readFromFile(String f) {
 		String read = "";
@@ -22,7 +23,7 @@ public class FileScanner {
 	public static void writeToFile(String s, String f) {
 
 		try {
-			Writer writer = new OutputStreamWriter(new FileOutputStream(f), "UTF-8");
+			Writer writer = new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8);
 			BufferedWriter fout = new BufferedWriter(writer);
 			fout.write(s);
 			fout.newLine();
@@ -33,7 +34,7 @@ public class FileScanner {
 	}
 
 	public static ArrayList<String> readEachLine(String f) {
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 		File file = new File(f);
 		if(file.exists()) {
 			try {

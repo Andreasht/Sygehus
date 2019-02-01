@@ -1,15 +1,12 @@
 package andUtils;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-
 @SuppressWarnings("Duplicates")
-
 public final class Utils {
 	private Utils() {}
 
@@ -22,7 +19,7 @@ public final class Utils {
 	}
 
 	public static ArrayList<Integer> toIntArray(ArrayList<String> in) {
-		ArrayList<Integer> out = new ArrayList<Integer>();
+		ArrayList<Integer> out = new ArrayList<>();
 		try {
 			in.forEach(String -> out.add(Integer.parseInt(String)));
 		} catch (Exception e) {
@@ -40,10 +37,11 @@ public final class Utils {
 						: o1.getValue().compareTo(o2.getValue()) : o2.getValue().compareTo(o1.getValue()) == 0
 						? o2.getKey().compareTo(o1.getKey())
 								: o2.getValue().compareTo(o1.getValue()));
-		return (HashMap<Integer,Integer>) list.stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> b, LinkedHashMap::new));
+		return list.stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> b, LinkedHashMap::new));
 	}
 
 	public static HashMap<Character, Integer> sortCharMapByValue(HashMap<Character, Integer> unsortedMap, final boolean order) {
+
 		//Ascending: input true
 		//Descending: input false
 		List<Entry<Character, Integer>> list = new LinkedList<>(unsortedMap.entrySet());
@@ -52,11 +50,11 @@ public final class Utils {
 				: o1.getValue().compareTo(o2.getValue()) : o2.getValue().compareTo(o1.getValue()) == 0
 				? o2.getKey().compareTo(o1.getKey())
 				: o2.getValue().compareTo(o1.getValue()));
-		return (HashMap<Character, Integer>) list.stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> b, LinkedHashMap::new));
+		return list.stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> b, LinkedHashMap::new));
 	}
 	
 	public static HashMap<Integer,Integer> getIntFrequencies(ArrayList<Integer> list) {
-		HashMap<Integer,Integer> map = new HashMap<Integer,Integer>();
+		HashMap<Integer,Integer> map = new HashMap<>();
 		list.forEach(Integer -> map.put(Integer, map.getOrDefault(Integer, 0)+1));
 		return map;
 	}
@@ -65,9 +63,9 @@ public final class Utils {
 		HashMap<Integer,Integer> map = getIntFrequencies(list);
 		HashMap<Integer,Integer> sortedMap = sortByValue(map, false);
 		List<Entry<Integer,Integer>> l = new LinkedList<>(sortedMap.entrySet());
-		ArrayList<Entry<Integer,Integer>> outList = new ArrayList<Entry<Integer,Integer>>();
+		ArrayList<Entry<Integer,Integer>> outList = new ArrayList<>();
 		for(Entry<Integer, Integer> entry : l) {
-			if(l.get(0).getValue() == entry.getValue()) {
+			if(Objects.equals(l.get(0).getValue(), entry.getValue())) {
 				outList.add(entry);
 			}
 		}

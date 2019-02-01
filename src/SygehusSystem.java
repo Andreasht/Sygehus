@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import static andUtils.Utils.*;
 import static andUtils.Serializer.*;
@@ -22,6 +23,13 @@ class SygehusSystem {
     private Bruger activeBruger;
 
     SygehusSystem() {
+        try {
+            setUIFont("Segoe UI Semilight", Font.PLAIN, 14);
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+
+        } catch (ClassNotFoundException | InstantiationException | UnsupportedLookAndFeelException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
         File listFile = new File("brugerListe.ser");
         if (!listFile.exists()) {
             System.out.println("Liste ikke fundet. ArrayList bliver initialiseret.");
@@ -32,8 +40,11 @@ class SygehusSystem {
             loadList();
             System.out.println("Liste loadet.");
         }
-        char[] adminKode = {'a','d','m','i','n'};
-        brugerListe.add(new Bruger("Systemadministrator","admin",adminKode,"Admin"));
+        boolean createAdmin = true;
+        for(Bruger b : brugerListe) {
+            if (b.getBrugernavn().equals("admin")) createAdmin = false;
+        }
+        if (createAdmin) brugerListe.add(new Admin("Systemadministrator","admin",Admin.DEF_ADMIN_KODE));
 
         new SygehusGUI();
     }
@@ -41,28 +52,35 @@ class SygehusSystem {
     class SygehusGUI {
         JFrame frame;
         JPanel panel;
+        JMenuBar menuBar = new JMenuBar();
+        JMenu menu = new JMenu("Menu");
+        JMenuItem turnOff = new JMenuItem("Luk system");
+        JMenuItem goBack = new JMenuItem("Gå tilbage");
+        JMenuItem goBackSignup = new JMenuItem("Gå tilbage");
+
+        ArrayList<JButton> profileButtons = new ArrayList<>();
 
         SygehusGUI() {
-            try {
-                setUIFont("Segoe UI Semilight", Font.PLAIN, 14);
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
-            } catch (ClassNotFoundException | InstantiationException | UnsupportedLookAndFeelException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
             this.init();
         }
 
         void init() {
             frame = new JFrame("HospitalOS");
             frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-            ImagePanel image = new ImagePanel("hospital.jpg",420,122);
+
+            turnOff.addActionListener(e -> System.exit(0));
+            menu.add(turnOff);
+            menuBar.add(menu);
+            frame.setJMenuBar(menuBar);
+
+            ImagePanel image = new ImagePanel("sst.png",732,172);
 
             panel = new JPanel(null);
             panel.setBounds(1000,1000,1000,1000);
 
             panel.add(image);
-            image.setBounds(300,100,420,122);
+            image.setBounds(134,100,732,172);
 
             JButton button1 = new JButton("Login");
             button1.setBounds(400,350,200,50);
@@ -73,7 +91,7 @@ class SygehusSystem {
 
             frame.setContentPane(panel);
             frame.setSize(1000,1000);
-
+            frame.setResizable(false);
             frame.setVisible(true);
         }
 
@@ -81,6 +99,12 @@ class SygehusSystem {
             redrawBasic();
             panel.setLayout(null);
             panel.setBounds(1000,1000,1000,1000);
+            menu.remove(goBackSignup);
+            menu.remove(goBack);
+            turnOff.addActionListener(e -> System.exit(0));
+            menu.add(turnOff);
+            menuBar.add(menu);
+            frame.setJMenuBar(menuBar);
 
             ArrayList<JLabel> labels = new ArrayList<>();
             labels.add(new JLabel("Brugernavn:"));
@@ -106,10 +130,11 @@ class SygehusSystem {
                 panel.add(f);
             }
 
-
             JButton logInButton = new JButton("Login");
             logInButton.setBounds(400, 550,200,50);
             panel.add(logInButton);
+
+            brugerField.requestFocus();
 
             logInButton.addActionListener(e -> {
                 boolean foundUser = false;
@@ -140,6 +165,13 @@ class SygehusSystem {
             redrawBasic();
             panel.setLayout(null);
             panel.setBounds(1000,1000,1000,1000);
+            menu.remove(goBack);
+            turnOff.addActionListener(e -> System.exit(0));
+            goBackSignup.addActionListener(e -> drawProfile());
+            menu.add(goBackSignup);
+            menu.add(turnOff);
+            menuBar.add(menu);
+            frame.setJMenuBar(menuBar);
 
             ArrayList<JLabel> labels = new ArrayList<>();
             labels.add(new JLabel("Fulde navn:"));
@@ -159,6 +191,8 @@ class SygehusSystem {
             fields.add(kodeField);
             fields.add(confKodeField);
 
+
+
             int y = 100;
             for(JLabel l : labels) {
                 l.setBounds(350, y, 150, 150);
@@ -173,6 +207,8 @@ class SygehusSystem {
                 panel.add(f);
             }
 
+
+
             //noinspection unchecked
             JComboBox roleList = new JComboBox(Bruger.ROLE_LIST);
             roleList.setBounds(480,550,150,50);
@@ -180,6 +216,8 @@ class SygehusSystem {
             JButton createUserButton = new JButton("Lav bruger");
             createUserButton.setBounds(400, 650,200,50);
             panel.add(createUserButton);
+
+            navnField.requestFocus();
 
             createUserButton.addActionListener(e -> {
                 String n = navnField.getText();
@@ -198,14 +236,26 @@ class SygehusSystem {
                 } else if (duplicateName) {
                     new PopUp().infoBox("En bruger med dette brugernavn findes allerede.");
                 } else {
-                    Bruger temp = new Bruger(n, bN, k, r);
+                    Bruger temp = null;
+                    switch(r) {
+
+                        case "Admin": temp = new Admin(n,bN,k); break;
+
+      //                  case "Læge": temp = new Læge(n, bN, k); break;
+
+      //                  case "Sygeplejerske": temp = new Sygeplejerske(n, bN, k); break;
+
+        //                case "Andet": temp = new AndetPersonale(n,bN,k);
+
+                        default: System.out.println("wtf happened"); break;
+
+                    }
+
                     brugerListe.add(temp);
                     System.out.println("En ny bruger blev lavet. Info:"+"\n"+n+"\n"+bN+"\n"+ Arrays.toString(k));
                     saveList();
                     System.out.println("Bruger gemt. Index: "+brugerListe.indexOf(temp));
                     new PopUp().infoBox("Du lavede en ny bruger med brugernavnet: "+bN);
-                    activeBruger = temp;
-                    drawProfile();
                 }
 
             });
@@ -215,18 +265,49 @@ class SygehusSystem {
 
         void drawProfile() {
             redrawBasic();
-            panel.add(Box.createRigidArea(new Dimension(300,200)));
+            menu.remove(goBackSignup);
+            turnOff.addActionListener(e -> System.exit(0));
+            goBack.addActionListener(e -> drawLogin());
+            menu.add(goBack);
+            menu.add(turnOff);
+            menuBar.add(menu);
+            frame.setJMenuBar(menuBar);
+
+            panel.add(Box.createRigidArea(new Dimension(300,250)));
             panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
             JLabel profileLabel = new JLabel("Du er logget ind som: " + activeBruger.getNavn() +" / "+activeBruger.getBrugernavn());
-            JLabel roleLabel = new JLabel("Du har rollen: " + activeBruger.getRolle() + " Dette giver dig følgende muligheder:");
+            JLabel roleLabel = new JLabel("Du har rollen: " + activeBruger.getRolle());
+            JLabel optLabel = new JLabel("Dette giver dig følgende muligheder: ");
             panel.add(profileLabel);
+            panel.add(Box.createVerticalStrut(10));
             panel.add(roleLabel);
+            panel.add(Box.createVerticalStrut(10));
+            panel.add(optLabel);
+            switch(activeBruger.getRolle()) {
+                case "Admin": drawAdmin();
+            }
             refreshFrame();
         }
 
         void drawAdmin() {
-            JButton lavBruger = new JButton("Opret ny bruger");
-            JButton skiftRoller = new JButton("Administrer roller");
+            profileButtons.clear();
+            profileButtons.add(new JButton("Opret ny bruger"));
+            profileButtons.add(new JButton("Se liste over brugere"));
+            profileButtons.add(new JButton("Sæt din status"));
+            profileButtons.add(new JButton("Administrer roller"));
+            drawProfileButtons();
+            profileButtons.get(0).addActionListener(e -> drawSignup());
+            profileButtons.get(1).addActionListener(e -> drawUserList());
+            profileButtons.get(2).addActionListener(e -> drawStatusBox());
+            profileButtons.get(3).addActionListener(e -> new PopUp().infoBox("Placeholder"));
+            refreshFrame();
+        }
+
+        void drawProfileButtons() {
+            profileButtons.forEach(JButton -> {
+                panel.add(Box.createVerticalStrut(50));
+                panel.add(JButton);
+            });
         }
 
         void redrawBasic() {
@@ -240,7 +321,32 @@ class SygehusSystem {
             frame.repaint();
             frame.setVisible(true);
         }
+
+        void drawUserList() {
+            JFrame listFrame = new JFrame();
+            listFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            JPanel listPanel = new JPanel();
+            String[] navneArray = brugerListe.stream().map(b -> b.getNavn() + " / " + b.getBrugernavn() + " | Status: " + b.getStatus()).toArray(String[]::new);
+            JList<String> navneListe = new JList<>(navneArray);
+            JScrollPane listScroller = new JScrollPane(navneListe);
+            listScroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+            listScroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            listPanel.add(navneListe);
+            listFrame.setContentPane(listPanel);
+            listFrame.setSize(500,500);
+            listFrame.validate();
+            listFrame.repaint();
+            listFrame.setVisible(true);
+        }
+
+        void drawStatusBox() {
+            Object[] options = {"Ledig", "Optaget", "Fraværende", "Pause"};
+            int choice = JOptionPane.showOptionDialog(null, "Hvilken status?", "Status", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+            activeBruger.setStatus(choice);
+        }
     }
+
+
 
     private void saveList() {
         serialize(brugerListe, "brugerListe.ser");
@@ -251,7 +357,7 @@ class SygehusSystem {
         try {
             //noinspection unchecked
             brugerListe = (ArrayList<Bruger>) deserialize("brugerListe.ser");
-        } catch (IOException | ClassNotFoundException ex) {
+        } catch (ClassNotFoundException ex) {
             System.out.println("Der skete en fejl. Stack trace:");
             ex.printStackTrace();
         }
