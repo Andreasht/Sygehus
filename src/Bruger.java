@@ -7,7 +7,7 @@ public class Bruger implements java.io.Serializable {
     private String navn;
     private String brugernavn;
     private char[] kodeord;
-    static final String[] ROLE_LIST = {"Admin","Læge","Sygeplejerske","Andet"};
+    static final String[] ROLE_LIST = {"Admin","Læge","Sygeplejerske","Personel"};
 
     Bruger() {
         navn = "Test";

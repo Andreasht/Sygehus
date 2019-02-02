@@ -4,10 +4,11 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-class FileScanner {
+public final class FileScanner {
 
 	public static String readFromFile(String f) {
 		String read = "";
@@ -22,15 +23,14 @@ class FileScanner {
 	
 	public static void writeToFile(String s, String f) {
 
-		try {
-			Writer writer = new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8);
-			BufferedWriter fout = new BufferedWriter(writer);
-			fout.write(s);
-			fout.newLine();
-			fout.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+        Path path = Paths.get(s);
+        byte[] data = f.getBytes();
+        try {
+            Files.write(path, data);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
 	}
 
 	public static ArrayList<String> readEachLine(String f) {

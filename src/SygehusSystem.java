@@ -2,21 +2,17 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 import static andUtils.Utils.*;
 import static andUtils.Serializer.*;
-import static javax.swing.SwingConstants.*;
 
 @SuppressWarnings("Duplicates")
-
 class SygehusSystem {
 
     private ArrayList<Bruger> brugerListe;
@@ -40,18 +36,26 @@ class SygehusSystem {
             loadList();
             System.out.println("Liste loadet.");
         }
+        Patient.loadPatientList();
+        System.out.println("Patientliste blev loadet.");
         boolean createAdmin = true;
+        boolean createLæge = true;
         for(Bruger b : brugerListe) {
             if (b.getBrugernavn().equals("admin")) createAdmin = false;
+            if (b.getBrugernavn().equals("læge")) createLæge = false;
         }
         if (createAdmin) brugerListe.add(new Admin("Systemadministrator","admin",Admin.DEF_ADMIN_KODE));
-
+        if (createLæge) brugerListe.add(new Læge("Test-læge","læge",Læge.DEF_LÆGE_KODE));
         new SygehusGUI();
     }
 
+    @SuppressWarnings("NonAsciiCharacters")
     class SygehusGUI {
         JFrame frame;
+        JFrame listFrame;
         JPanel panel;
+        JPanel listPanel;
+        JList<String> navneListe;
         JMenuBar menuBar = new JMenuBar();
         JMenu menu = new JMenu("Menu");
         JMenuItem turnOff = new JMenuItem("Luk system");
@@ -61,7 +65,6 @@ class SygehusSystem {
         ArrayList<JButton> profileButtons = new ArrayList<>();
 
         SygehusGUI() {
-
             this.init();
         }
 
@@ -74,7 +77,7 @@ class SygehusSystem {
             menuBar.add(menu);
             frame.setJMenuBar(menuBar);
 
-            ImagePanel image = new ImagePanel("sst.png",732,172);
+            ImagePanel image = new ImagePanel("Billeder/sst.png",732,172);
 
             panel = new JPanel(null);
             panel.setBounds(1000,1000,1000,1000);
@@ -237,15 +240,15 @@ class SygehusSystem {
                     new PopUp().infoBox("En bruger med dette brugernavn findes allerede.");
                 } else {
                     Bruger temp = null;
-                    switch(r) {
+                    switch(Objects.requireNonNull(r)) {
 
                         case "Admin": temp = new Admin(n,bN,k); break;
 
-      //                  case "Læge": temp = new Læge(n, bN, k); break;
+                        case "Læge": temp = new Læge(n, bN, k); break;
 
-      //                  case "Sygeplejerske": temp = new Sygeplejerske(n, bN, k); break;
+                        case "Sygeplejerske": temp = new Sygeplejerske(n, bN, k); break;
 
-        //                case "Andet": temp = new AndetPersonale(n,bN,k);
+                        case "Personel": temp = new Personel(n,bN,k);
 
                         default: System.out.println("wtf happened"); break;
 
@@ -273,7 +276,7 @@ class SygehusSystem {
             menuBar.add(menu);
             frame.setJMenuBar(menuBar);
 
-            panel.add(Box.createRigidArea(new Dimension(300,250)));
+            panel.add(Box.createRigidArea(new Dimension(300,200)));
             panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
             JLabel profileLabel = new JLabel("Du er logget ind som: " + activeBruger.getNavn() +" / "+activeBruger.getBrugernavn());
             JLabel roleLabel = new JLabel("Du har rollen: " + activeBruger.getRolle());
@@ -284,7 +287,11 @@ class SygehusSystem {
             panel.add(Box.createVerticalStrut(10));
             panel.add(optLabel);
             switch(activeBruger.getRolle()) {
-                case "Admin": drawAdmin();
+                case "Admin": drawAdmin(); break;
+                case "Læge": drawLæge(); break;
+                case "Sygeplejerske": drawSygp(); break;
+                case "Personel": drawPersonel(); break;
+                default: System.out.println("Der skete en fejl i drawProfile()"); break;
             }
             refreshFrame();
         }
@@ -295,12 +302,220 @@ class SygehusSystem {
             profileButtons.add(new JButton("Se liste over brugere"));
             profileButtons.add(new JButton("Sæt din status"));
             profileButtons.add(new JButton("Administrer roller"));
-            drawProfileButtons();
+
             profileButtons.get(0).addActionListener(e -> drawSignup());
             profileButtons.get(1).addActionListener(e -> drawUserList());
             profileButtons.get(2).addActionListener(e -> drawStatusBox());
             profileButtons.get(3).addActionListener(e -> new PopUp().infoBox("Placeholder"));
+
+            drawProfileButtons();
+
             refreshFrame();
+        }
+
+        void drawLæge() {
+            profileButtons.clear();
+            profileButtons.add(new JButton("Indskriv patient"));
+            profileButtons.add(new JButton("Opret patientjournal"));
+            profileButtons.add(new JButton("Læs patientjournaler"));
+            profileButtons.add(new JButton("Se indskrevne patienter"));
+            profileButtons.add(new JButton("Se liste over brugere"));
+            profileButtons.add(new JButton("Sæt din status"));
+            profileButtons.get(0).addActionListener(e -> drawIndskriv());
+            profileButtons.get(1).addActionListener(e -> drawOpretPart1());
+            profileButtons.get(2).addActionListener(e -> drawLæsJournaler());
+            profileButtons.get(3).addActionListener(e -> drawIndskrevneList());
+            profileButtons.get(4).addActionListener(e -> drawUserList());
+            profileButtons.get(5).addActionListener(e -> drawStatusBox());
+
+            drawProfileButtons();
+
+            refreshFrame();
+        }
+
+        void drawSygp() {
+            profileButtons.clear();
+            profileButtons.add(new JButton("Indskriv patient"));
+            profileButtons.add(new JButton("Læs patientjournaler"));
+            profileButtons.add(new JButton("Se indskrevne patienter"));
+            profileButtons.add(new JButton("Se liste over brugere"));
+            profileButtons.add(new JButton("Sæt din status"));
+            profileButtons.get(0).addActionListener(e -> drawIndskriv());
+            profileButtons.get(1).addActionListener(e -> drawLæsJournaler());
+            profileButtons.get(2).addActionListener(e -> drawIndskrevneList());
+            profileButtons.get(3).addActionListener(e -> drawUserList());
+            profileButtons.get(4).addActionListener(e -> drawStatusBox());
+
+            drawProfileButtons();
+
+            refreshFrame();
+        }
+
+        void drawPersonel() {
+            profileButtons.clear();
+            profileButtons.add(new JButton("Se liste over brugere"));
+            profileButtons.add(new JButton("Sæt din status"));
+            profileButtons.get(0).addActionListener(e -> drawUserList());
+            profileButtons.get(1).addActionListener(e -> drawStatusBox());
+
+            drawProfileButtons();
+
+            refreshFrame();
+        }
+
+        void drawIndskriv() {
+            JFrame indskrivFrame = new JFrame("Indskriv patient");
+            JPanel mainPanel = new JPanel();
+            mainPanel.setLayout(new BoxLayout(mainPanel,BoxLayout.Y_AXIS));
+
+            JTextArea navn = new JTextArea(1,20);
+            navn.setLineWrap(true);
+            navn.setWrapStyleWord(true);
+
+            JScrollPane nScroller = new JScrollPane(navn);
+            nScroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+            nScroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+            JTextArea cpr = new JTextArea(1,1);
+            cpr.setLineWrap(true);
+            cpr.setWrapStyleWord(true);
+
+
+            JScrollPane cprScroller = new JScrollPane(cpr);
+            cprScroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+            cprScroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+            JTextArea grund = new JTextArea(3,20);
+            grund.setLineWrap(true);
+            grund.setWrapStyleWord(true);
+
+            JScrollPane gScroller = new JScrollPane(grund);
+            gScroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+            gScroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+            JButton indskrivButton = new JButton("Indskriv");
+
+            JLabel navnLabel = new JLabel("Navn på patient:");
+            JLabel cprLabel = new JLabel("CPR-nummer:");
+            JLabel grundLabel = new JLabel("Grund til indlæggelse:");
+            mainPanel.add(navnLabel);
+            mainPanel.add(nScroller);
+            mainPanel.add(cprLabel);
+            mainPanel.add(cprScroller);
+            mainPanel.add(grundLabel);
+            mainPanel.add(gScroller);
+            mainPanel.add(indskrivButton);
+
+            indskrivButton.addActionListener(e -> {
+                long cprLong = Long.parseLong(cpr.getText());
+                Patient.indskriv(new Patient(navn.getText(), cprLong), grund.getText());
+                new PopUp().infoBox("En patient med navnet "+navn.getText()+" blev indskrevet.");
+                Patient.savePatientList();
+                indskrivFrame.dispose();
+            });
+            navn.requestFocus();
+            indskrivFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            indskrivFrame.getContentPane().add(BorderLayout.CENTER, mainPanel);
+            indskrivFrame.setSize(500,500);
+            indskrivFrame.setVisible(true);
+        }
+
+        void drawIndskrevneList() {
+            drawListFrame(false);
+            JButton seDetaljer = new JButton("Se detaljer");
+            listPanel.add(seDetaljer);
+            seDetaljer.addActionListener(e -> {
+                String[] temp = navneListe.getSelectedValue().split("\\|");
+                long id = Long.parseLong(temp[1].substring(6));
+                for(Patient p : Patient.patientListe) {
+                    if(p.getCpr() == id) {
+                        new PopUp().infoBox("Grund til indlæggelse:\n"+p.getGrund());
+                        listFrame.dispose();
+                    }
+                }
+
+            });
+            refreshListFrame();
+        }
+
+        void drawOpretPart1() {
+            drawListFrame(false);
+            JButton chooseButton = new JButton("Vælg");
+            listPanel.add(chooseButton);
+            chooseButton.addActionListener(e -> {
+                String[] temp = navneListe.getSelectedValue().split("\\|");
+                long id = Long.parseLong(temp[1].substring(6));
+                for(Patient p : Patient.patientListe) {
+                    if(p.getCpr() == id) {
+                        drawOpretPart2(p);
+                        listFrame.dispose();
+                    }
+                }
+            });
+            refreshListFrame();
+        }
+
+        void drawOpretPart2(Patient p) {
+            JFrame listFrame = new JFrame();
+            listFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            JPanel listPanel = new JPanel();
+
+            JTextArea tekst = new JTextArea(10,20);
+            tekst.setLineWrap(true);
+            tekst.setWrapStyleWord(true);
+
+            JScrollPane Scroller = new JScrollPane(tekst);
+            Scroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+            Scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+            JButton opretJournal = new JButton("Opret journal");
+
+            listPanel.add(Scroller);
+            listPanel.add(opretJournal);
+
+            opretJournal.addActionListener(e -> {
+                p.opretJournal(tekst.getText());
+                new PopUp().infoBox("Patientjournal blev oprettet.");
+                Patient.savePatientList();
+                listFrame.dispose();
+            });
+
+            listFrame.getContentPane().add(BorderLayout.CENTER, listPanel);
+            listFrame.setSize(500,400);
+            listFrame.setVisible(true);
+        }
+
+        void drawLæsJournaler() {
+            drawListFrame(true);
+            JButton chooseButton = new JButton("Vælg");
+            listPanel.add(chooseButton);
+            chooseButton.addActionListener(e -> {
+                String[] temp2 = navneListe.getSelectedValue().split("\\|");
+                long id = Long.parseLong(temp2[1].substring(6));
+                for(Patient p : Patient.patientListe) {
+                    if(p.getCpr() == id) {
+                        System.out.println("PING!!");
+                        JFrame readFramePopUp = new JFrame();
+                        readFramePopUp.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+                        JPanel readPanelPopUp = new JPanel();
+                        JTextArea display = new JTextArea(10,20);
+                        display.setLineWrap(true);
+                        display.setEditable(false);
+                        display.setText(p.læsJournal());
+                        JScrollPane dispScroller = new JScrollPane(display);
+                        dispScroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+                        dispScroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+                        readPanelPopUp.add(dispScroller);
+                        readFramePopUp.setContentPane(readPanelPopUp);
+                        readFramePopUp.setSize(640,500);
+                        readFramePopUp.setVisible(true);
+                        listFrame.dispose();
+                        System.out.println("PONG!!");
+                    }
+                }
+            });
+
+            refreshListFrame();
         }
 
         void drawProfileButtons() {
@@ -308,6 +523,29 @@ class SygehusSystem {
                 panel.add(Box.createVerticalStrut(50));
                 panel.add(JButton);
             });
+        }
+
+        void drawUserList() {
+            JFrame listFrame = new JFrame();
+            listFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            JPanel listPanel = new JPanel();
+            String[] navneArray = brugerListe.stream().map(b -> b.getNavn() + " / " + b.getBrugernavn() + " | Status: " + b.getStatus()).toArray(String[]::new);
+            JList<String> navneListe = new JList<>(navneArray);
+            JScrollPane listScroller = new JScrollPane(navneListe);
+            listScroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+            listScroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            listPanel.add(listScroller);
+            listFrame.setContentPane(listPanel);
+            listFrame.setSize(500,500);
+            listFrame.validate();
+            listFrame.repaint();
+            listFrame.setVisible(true);
+        }
+
+        void drawStatusBox() {
+            Object[] options = {"Ledig", "Optaget", "Fraværende", "Pause"};
+            int choice = JOptionPane.showOptionDialog(null, "Hvilken status?", "Status", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+            activeBruger.setStatus(choice);
         }
 
         void redrawBasic() {
@@ -322,31 +560,40 @@ class SygehusSystem {
             frame.setVisible(true);
         }
 
-        void drawUserList() {
-            JFrame listFrame = new JFrame();
+        void drawListFrame(boolean fraLæsJournal) {
+            listFrame = new JFrame();
             listFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-            JPanel listPanel = new JPanel();
-            String[] navneArray = brugerListe.stream().map(b -> b.getNavn() + " / " + b.getBrugernavn() + " | Status: " + b.getStatus()).toArray(String[]::new);
-            JList<String> navneListe = new JList<>(navneArray);
+            listPanel = new JPanel();
+            listPanel.setLayout(new BoxLayout(listPanel,BoxLayout.Y_AXIS));
+            String[] navneArray;
+            JLabel chooseLabel = new JLabel("Vælg en patient:");
+            if(!fraLæsJournal) {
+                navneArray = Patient.patientListe.stream().map(p -> p.getNavn() + " | CPR: " + p.getCpr()).toArray(String[]::new);
+            } else {
+                ArrayList<Patient> temp = new ArrayList<>();
+                for (Patient p : Patient.patientListe) if (p.harJournal()) temp.add(p);
+                navneArray = temp.stream().map(p -> p.getNavn() + " | CPR: " + p.getCpr()).toArray(String[]::new);
+            }
+            navneListe = new JList<>(navneArray);
             JScrollPane listScroller = new JScrollPane(navneListe);
             listScroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
             listScroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-            listPanel.add(navneListe);
-            listFrame.setContentPane(listPanel);
+            listPanel.add(chooseLabel);
+            listPanel.add(listScroller);
+
+        }
+
+        void refreshListFrame() {
+            listFrame.getContentPane().add(BorderLayout.CENTER, listPanel);
             listFrame.setSize(500,500);
             listFrame.validate();
             listFrame.repaint();
             listFrame.setVisible(true);
+
+
         }
 
-        void drawStatusBox() {
-            Object[] options = {"Ledig", "Optaget", "Fraværende", "Pause"};
-            int choice = JOptionPane.showOptionDialog(null, "Hvilken status?", "Status", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-            activeBruger.setStatus(choice);
-        }
     }
-
-
 
     private void saveList() {
         serialize(brugerListe, "brugerListe.ser");
@@ -363,8 +610,6 @@ class SygehusSystem {
         }
 
     }
-
-
 
     class ImagePanel extends JPanel {
         private BufferedImage image;
