@@ -3,6 +3,7 @@ import javax.swing.*;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.peer.PopupMenuPeer;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -144,10 +145,8 @@ class SygehusSystem {
                 for(Bruger b : brugerListe) {
                     if(b.getBrugernavn().equals(brugerField.getText())) {
                         foundUser = true;
-                        System.out.println("Ding");
                         //noinspection PointlessBooleanExpression
                         if(b.authenticate(kodeField.getPassword()) == true) {
-                            System.out.println("Dong");
                             new PopUp().infoBox("Du er nu logget ind som: "+b.getBrugernavn());
                             activeBruger = b;
                             drawProfile();
@@ -316,17 +315,19 @@ class SygehusSystem {
         void drawLæge() {
             profileButtons.clear();
             profileButtons.add(new JButton("Indskriv patient"));
+            profileButtons.add(new JButton("Book seng til patient"));
             profileButtons.add(new JButton("Opret patientjournal"));
             profileButtons.add(new JButton("Læs patientjournaler"));
             profileButtons.add(new JButton("Se indskrevne patienter"));
             profileButtons.add(new JButton("Se liste over brugere"));
             profileButtons.add(new JButton("Sæt din status"));
             profileButtons.get(0).addActionListener(e -> drawIndskriv());
-            profileButtons.get(1).addActionListener(e -> drawOpretPart1());
-            profileButtons.get(2).addActionListener(e -> drawLæsJournaler());
-            profileButtons.get(3).addActionListener(e -> drawIndskrevneList());
-            profileButtons.get(4).addActionListener(e -> drawUserList());
-            profileButtons.get(5).addActionListener(e -> drawStatusBox());
+            profileButtons.get(1).addActionListener(e -> drawBookSeng());
+            profileButtons.get(2).addActionListener(e -> drawOpretPart1());
+            profileButtons.get(3).addActionListener(e -> drawLæsJournaler());
+            profileButtons.get(4).addActionListener(e -> drawIndskrevneList());
+            profileButtons.get(5).addActionListener(e -> drawUserList());
+            profileButtons.get(6).addActionListener(e -> drawStatusBox());
 
             drawProfileButtons();
 
@@ -407,11 +408,17 @@ class SygehusSystem {
             mainPanel.add(indskrivButton);
 
             indskrivButton.addActionListener(e -> {
-                long cprLong = Long.parseLong(cpr.getText());
-                Patient.indskriv(new Patient(navn.getText(), cprLong), grund.getText());
-                new PopUp().infoBox("En patient med navnet "+navn.getText()+" blev indskrevet.");
-                Patient.savePatientList();
-                indskrivFrame.dispose();
+                long cprLong;
+                if(!(cpr.getText().length() == 10)) {
+                    new PopUp().infoBox("Ugyldigt CPR-nummer. CPR-nummer skal være på 10 cifre.");
+                }
+                else {
+                    cprLong = Long.parseLong(cpr.getText());
+                    Patient.indskriv(new Patient(navn.getText(), cprLong), grund.getText());
+                    new PopUp().infoBox("En patient med navnet "+navn.getText()+" blev indskrevet.");
+                    Patient.savePatientList();
+                    indskrivFrame.dispose();
+                }
             });
             navn.requestFocus();
             indskrivFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -421,30 +428,43 @@ class SygehusSystem {
         }
 
         void drawIndskrevneList() {
-            drawListFrame(false);
+            drawListFrame(false, false);
             JButton seDetaljer = new JButton("Se detaljer");
+            JButton udskriv = new JButton("Udskriv");
             listPanel.add(seDetaljer);
+            listPanel.add(udskriv);
             seDetaljer.addActionListener(e -> {
                 String[] temp = navneListe.getSelectedValue().split("\\|");
-                long id = Long.parseLong(temp[1].substring(6));
+                long id = Long.parseLong(temp[1].substring(6,16));
                 for(Patient p : Patient.patientListe) {
                     if(p.getCpr() == id) {
                         new PopUp().infoBox("Grund til indlæggelse:\n"+p.getGrund());
-                        listFrame.dispose();
                     }
                 }
 
+            });
+            udskriv.addActionListener(ev -> {
+                String[] temp = navneListe.getSelectedValue().split("\\|");
+                long id = Long.parseLong(temp[1].substring(6,16));
+                for(Patient p : Patient.patientListe) {
+                    if(p.getCpr() == id) {
+                        new PopUp().infoBox("Patienten "+p.getNavn()+" blev udskrevet.");
+                        Patient.udskriv(p);
+                        Patient.savePatientList();
+                        break;
+                    }
+                }
             });
             refreshListFrame();
         }
 
         void drawOpretPart1() {
-            drawListFrame(false);
+            drawListFrame(false, false);
             JButton chooseButton = new JButton("Vælg");
             listPanel.add(chooseButton);
             chooseButton.addActionListener(e -> {
                 String[] temp = navneListe.getSelectedValue().split("\\|");
-                long id = Long.parseLong(temp[1].substring(6));
+                long id = Long.parseLong(temp[1].substring(6,16));
                 for(Patient p : Patient.patientListe) {
                     if(p.getCpr() == id) {
                         drawOpretPart2(p);
@@ -486,15 +506,14 @@ class SygehusSystem {
         }
 
         void drawLæsJournaler() {
-            drawListFrame(true);
+            drawListFrame(true, false);
             JButton chooseButton = new JButton("Vælg");
             listPanel.add(chooseButton);
             chooseButton.addActionListener(e -> {
                 String[] temp2 = navneListe.getSelectedValue().split("\\|");
-                long id = Long.parseLong(temp2[1].substring(6));
+                long id = Long.parseLong(temp2[1].substring(6,16));
                 for(Patient p : Patient.patientListe) {
                     if(p.getCpr() == id) {
-                        System.out.println("PING!!");
                         JFrame readFramePopUp = new JFrame();
                         readFramePopUp.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
                         JPanel readPanelPopUp = new JPanel();
@@ -510,7 +529,40 @@ class SygehusSystem {
                         readFramePopUp.setSize(640,500);
                         readFramePopUp.setVisible(true);
                         listFrame.dispose();
-                        System.out.println("PONG!!");
+                    }
+                }
+            });
+
+            refreshListFrame();
+        }
+
+        void drawBookSeng() {
+            drawListFrame(false, true);
+            JButton chooseButton = new JButton("Vælg");
+            listPanel.add(chooseButton);
+            chooseButton.addActionListener(e -> {
+                String[] temp = navneListe.getSelectedValue().split("#");
+                int id = Integer.parseInt(temp[1]);
+                for(Seng s : Seng.sengeStue1) {
+                    if(s.getId() == id) {
+                        listFrame.dispose();
+                        drawListFrame(false,false);
+                        JButton vælgPatient = new JButton("Vælg");
+                        listPanel.add(vælgPatient);
+                        vælgPatient.addActionListener(ev -> {
+                            String[] temp2 = navneListe.getSelectedValue().split("\\|");
+                            long id2 = Long.parseLong(temp2[1].substring(6,16));
+                            for(Patient p : Patient.patientListe) {
+                                if(p.getCpr() == id2) {
+                                    new PopUp().infoBox("Du bookede seng #"+id+" til patienten "+p.getNavn());
+                                    Seng.bookSeng(s, p);
+                                    Seng.saveSengeList();
+                                    Patient.savePatientList();
+                                    listFrame.dispose();
+                                }
+                            }
+                        });
+                        refreshListFrame();
                     }
                 }
             });
@@ -560,19 +612,28 @@ class SygehusSystem {
             frame.setVisible(true);
         }
 
-        void drawListFrame(boolean fraLæsJournal) {
+        void drawListFrame(boolean fraLæsJournal, boolean fraBookSeng) {
             listFrame = new JFrame();
             listFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            listFrame.setResizable(false);
             listPanel = new JPanel();
             listPanel.setLayout(new BoxLayout(listPanel,BoxLayout.Y_AXIS));
             String[] navneArray;
-            JLabel chooseLabel = new JLabel("Vælg en patient:");
-            if(!fraLæsJournal) {
-                navneArray = Patient.patientListe.stream().map(p -> p.getNavn() + " | CPR: " + p.getCpr()).toArray(String[]::new);
-            } else {
+            JLabel chooseLabel = new JLabel();
+            if(fraLæsJournal) {
+                chooseLabel.setText("Vælg en patient:");
                 ArrayList<Patient> temp = new ArrayList<>();
                 for (Patient p : Patient.patientListe) if (p.harJournal()) temp.add(p);
-                navneArray = temp.stream().map(p -> p.getNavn() + " | CPR: " + p.getCpr()).toArray(String[]::new);
+                navneArray = temp.stream().map(p -> p.getNavn() + " | CPR: " + p.getCpr() + p.getSeng()).toArray(String[]::new);
+
+            } else if (fraBookSeng){
+                chooseLabel.setText("Vælg en seng:");
+                ArrayList<Seng> temp1 = new ArrayList<>();
+                for(Seng s : Seng.sengeStue1) if(s.erLedig()) temp1.add(s);
+                navneArray = temp1.stream().map(s -> "Seng #"+s.getId()).toArray(String[]::new);
+            } else {
+                chooseLabel.setText("Vælg en patient:");
+                navneArray = Patient.patientListe.stream().map(p -> p.getNavn() + " | CPR: " + p.getCpr() + p.getSeng()).toArray(String[]::new);
             }
             navneListe = new JList<>(navneArray);
             JScrollPane listScroller = new JScrollPane(navneListe);
@@ -580,7 +641,6 @@ class SygehusSystem {
             listScroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
             listPanel.add(chooseLabel);
             listPanel.add(listScroller);
-
         }
 
         void refreshListFrame() {

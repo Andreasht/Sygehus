@@ -1,6 +1,6 @@
 import java.util.Arrays;
 
-public class Bruger implements java.io.Serializable {
+public abstract class Bruger implements java.io.Serializable {
     private Status status;
     static int antalBrugere;
  //   private int id;
@@ -58,7 +58,6 @@ public class Bruger implements java.io.Serializable {
     }
 
     public static void main(String[] args) {
-        Bruger bruger = new Bruger();
-        System.out.println(bruger.getStatus());
+
     }
 }

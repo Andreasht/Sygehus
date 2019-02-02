@@ -11,6 +11,8 @@ public class  Patient implements java.io.Serializable {
     private long cpr;
     private boolean harJournal = false;
     private Journal journal;
+    private boolean iSeng = false;
+    private Seng seng;
 
     Patient(String n, long i) {
         navn = n;
@@ -27,6 +29,9 @@ public class  Patient implements java.io.Serializable {
         patientListe.remove(p);
         p.erIndlagt = false;
         p.indlæggelsesGrund = "Ikke indlagt";
+        p.seng.setLedig(true);
+        p.setSeng(null);
+        p.iSeng = false;
 
     }
 
@@ -75,7 +80,28 @@ public class  Patient implements java.io.Serializable {
         harJournal = true;
     }
 
+    void setISeng(boolean b) {
+        iSeng = b;
+    }
+
+    boolean iSeng() {
+        return iSeng;
+    }
+
+
     String læsJournal() {
         return journal.readJournal();
+    }
+
+    public String getSeng() {
+        if(iSeng) {
+            return " | Seng #"+seng.getId();
+        } else {
+            return "";
+        }
+    }
+
+    void setSeng(Seng s) {
+        seng = s;
     }
 }
