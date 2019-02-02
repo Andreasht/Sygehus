@@ -1,3 +1,6 @@
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 
 public abstract class Bruger implements java.io.Serializable {
@@ -6,8 +9,8 @@ public abstract class Bruger implements java.io.Serializable {
  //   private int id;
     private String navn;
     private String brugernavn;
-    private char[] kodeord;
-    static final String[] ROLE_LIST = {"Admin","Læge","Sygeplejerske","Personel"};
+    File persMappe;
+    private char[] kodeord;    static final String[] ROLE_LIST = {"Admin","Læge","Sygeplejerske","Personel"};
 
     Bruger() {
         navn = "Test";
@@ -19,8 +22,11 @@ public abstract class Bruger implements java.io.Serializable {
         brugernavn = bN;
         kodeord = k;
    //     id = antalBrugere + 1;
+        persMappe = new File("Personalemapper/"+bN);
+        persMappe.mkdir();
         antalBrugere++;
         status = Status.LEDIG;
+        System.out.println("ding");
     }
 
     public String getBrugernavn() {
@@ -55,6 +61,15 @@ public abstract class Bruger implements java.io.Serializable {
 
     String getRolle() {
         return getClass().toString().substring(6);
+    }
+
+    void åbenMappe() {
+        try {
+            Desktop.getDesktop().open(persMappe);
+        } catch(IOException ex) {
+            System.out.println("Noget gik galt under åbning af personlig mappe.");
+        }
+
     }
 
     public static void main(String[] args) {

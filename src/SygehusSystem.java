@@ -301,12 +301,12 @@ class SygehusSystem {
             profileButtons.add(new JButton("Se liste over brugere"));
             profileButtons.add(new JButton("Sæt din status"));
             profileButtons.add(new JButton("Administrer roller"));
-
+            profileButtons.add(new JButton("Åben personlig mappe"));
             profileButtons.get(0).addActionListener(e -> drawSignup());
             profileButtons.get(1).addActionListener(e -> drawUserList());
             profileButtons.get(2).addActionListener(e -> drawStatusBox());
             profileButtons.get(3).addActionListener(e -> new PopUp().infoBox("Placeholder"));
-
+            profileButtons.get(4).addActionListener(e -> activeBruger.åbenMappe());
             drawProfileButtons();
 
             refreshFrame();
@@ -321,6 +321,7 @@ class SygehusSystem {
             profileButtons.add(new JButton("Se indskrevne patienter"));
             profileButtons.add(new JButton("Se liste over brugere"));
             profileButtons.add(new JButton("Sæt din status"));
+            profileButtons.add(new JButton("Åben personlig mappe"));
             profileButtons.get(0).addActionListener(e -> drawIndskriv());
             profileButtons.get(1).addActionListener(e -> drawBookSeng());
             profileButtons.get(2).addActionListener(e -> drawOpretPart1());
@@ -328,6 +329,7 @@ class SygehusSystem {
             profileButtons.get(4).addActionListener(e -> drawIndskrevneList());
             profileButtons.get(5).addActionListener(e -> drawUserList());
             profileButtons.get(6).addActionListener(e -> drawStatusBox());
+            profileButtons.get(7).addActionListener(e -> activeBruger.åbenMappe());
 
             drawProfileButtons();
 
@@ -342,12 +344,14 @@ class SygehusSystem {
             profileButtons.add(new JButton("Se indskrevne patienter"));
             profileButtons.add(new JButton("Se liste over brugere"));
             profileButtons.add(new JButton("Sæt din status"));
+            profileButtons.add(new JButton("Åben personlig mappe"));
             profileButtons.get(0).addActionListener(e -> drawIndskriv());
             profileButtons.get(1).addActionListener(e -> drawBookSeng());
             profileButtons.get(2).addActionListener(e -> drawLæsJournaler());
             profileButtons.get(3).addActionListener(e -> drawIndskrevneList());
             profileButtons.get(4).addActionListener(e -> drawUserList());
             profileButtons.get(5).addActionListener(e -> drawStatusBox());
+            profileButtons.get(6).addActionListener(e -> activeBruger.åbenMappe());
 
             drawProfileButtons();
 
@@ -358,8 +362,10 @@ class SygehusSystem {
             profileButtons.clear();
             profileButtons.add(new JButton("Se liste over brugere"));
             profileButtons.add(new JButton("Sæt din status"));
+            profileButtons.add(new JButton("Åben personlig mappe"));
             profileButtons.get(0).addActionListener(e -> drawUserList());
             profileButtons.get(1).addActionListener(e -> drawStatusBox());
+            profileButtons.get(2).addActionListener(e -> activeBruger.åbenMappe());
 
             drawProfileButtons();
 

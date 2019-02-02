@@ -1,3 +1,5 @@
+import java.io.File;
+
 public class Admin extends Bruger {
     static final char[] DEF_ADMIN_KODE = {'a','d','m','i','n'};
 
