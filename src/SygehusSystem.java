@@ -27,7 +27,7 @@ class SygehusSystem {
         } catch (ClassNotFoundException | InstantiationException | UnsupportedLookAndFeelException | IllegalAccessException e) {
             e.printStackTrace();
         }
-        File listFile = new File("brugerListe.ser");
+        File listFile = new File("Data/brugerListe.ser");
         if (!listFile.exists()) {
             System.out.println("Liste ikke fundet. ArrayList bliver initialiseret.");
             brugerListe = new ArrayList<>();
