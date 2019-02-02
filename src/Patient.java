@@ -44,7 +44,7 @@ public class  Patient implements java.io.Serializable {
     }
 
     static void savePatientList() {
-        serialize(patientListe,"patientListe.ser");
+        serialize(patientListe,"Data/patientListe.ser");
         System.out.println("Patientliste blev gemt.");
     }
 
@@ -55,7 +55,7 @@ public class  Patient implements java.io.Serializable {
                 System.out.println("Patientliste ikke fundet. Går videre.");
             } else {
                 System.out.println("Patient liste fundet. Loader.");
-                patientListe = (ArrayList<Patient>) deserialize("patientListe.ser");
+                patientListe = (ArrayList<Patient>) deserialize("Data/patientListe.ser");
             }
         } catch (ClassNotFoundException e) {
             System.out.println("Noget gik galt under load af patientliste");

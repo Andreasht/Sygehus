@@ -23,7 +23,7 @@ public class Seng implements java.io.Serializable {
         } else {
             System.out.println("Sengeliste bliver loadet.");
             try {
-                sengeStue1 = (ArrayList<Seng>) deserialize("sengeListe.ser");
+                sengeStue1 = (ArrayList<Seng>) deserialize("Data/sengeListe.ser");
             } catch(Exception ex) {
                 System.out.println("Noget gik galt under load af sengeliste.");
             }
@@ -62,14 +62,7 @@ public class Seng implements java.io.Serializable {
     }
 
     static void saveSengeList() {
-        serialize(sengeStue1, "sengeListe.ser");
+        serialize(sengeStue1, "Data/sengeListe.ser");
     }
 
-    static void loadSengeListe() {
-        try {
-            sengeStue1 = (ArrayList<Seng>) deserialize("sengeListe.ser");
-        } catch(Exception ex) {
-            System.out.println("Noget gik galt under load af sengeliste.");
-        }
-    }
 }

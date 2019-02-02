@@ -664,14 +664,14 @@ class SygehusSystem {
     }
 
     private void saveList() {
-        serialize(brugerListe, "brugerListe.ser");
+        serialize(brugerListe, "Data/brugerListe.ser");
         System.out.println("Liste blev gemt.");
     }
 
     private void loadList() {
         try {
             //noinspection unchecked
-            brugerListe = (ArrayList<Bruger>) deserialize("brugerListe.ser");
+            brugerListe = (ArrayList<Bruger>) deserialize("Data/brugerListe.ser");
         } catch (ClassNotFoundException ex) {
             System.out.println("Der skete en fejl. Stack trace:");
             ex.printStackTrace();
