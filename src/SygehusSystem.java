@@ -337,15 +337,17 @@ class SygehusSystem {
         void drawSygp() {
             profileButtons.clear();
             profileButtons.add(new JButton("Indskriv patient"));
+            profileButtons.add(new JButton("Book seng til patient"));
             profileButtons.add(new JButton("Læs patientjournaler"));
             profileButtons.add(new JButton("Se indskrevne patienter"));
             profileButtons.add(new JButton("Se liste over brugere"));
             profileButtons.add(new JButton("Sæt din status"));
             profileButtons.get(0).addActionListener(e -> drawIndskriv());
-            profileButtons.get(1).addActionListener(e -> drawLæsJournaler());
-            profileButtons.get(2).addActionListener(e -> drawIndskrevneList());
-            profileButtons.get(3).addActionListener(e -> drawUserList());
-            profileButtons.get(4).addActionListener(e -> drawStatusBox());
+            profileButtons.get(1).addActionListener(e -> drawBookSeng());
+            profileButtons.get(2).addActionListener(e -> drawLæsJournaler());
+            profileButtons.get(3).addActionListener(e -> drawIndskrevneList());
+            profileButtons.get(4).addActionListener(e -> drawUserList());
+            profileButtons.get(5).addActionListener(e -> drawStatusBox());
 
             drawProfileButtons();
 
