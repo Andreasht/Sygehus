@@ -50,7 +50,7 @@ public class Patient implements java.io.Serializable {
 
     static void loadPatientList() {
         try {
-            File listFile = new File("patientListe.ser");
+            File listFile = new File("Data/patientListe.ser");
             if (!listFile.exists()) {
                 System.out.println("Patientliste ikke fundet. Går videre.");
             } else {

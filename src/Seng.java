@@ -13,7 +13,7 @@ public class Seng implements java.io.Serializable {
         id = i;
     }
     static {
-        File sengeListe = new File("sengeListe.ser");
+        File sengeListe = new File("Data/sengeListe.ser");
         if(!sengeListe.exists()) {
             System.out.println("Sengeliste bliver initialiseret.");
             for (int i = 1; i < 11; i++) {

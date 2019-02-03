@@ -35,11 +35,16 @@ class SygehusSystem {
             loadList();
         }
         Patient.loadPatientList();
-        boolean createAdmin = true;
+        boolean createDef = true;
         for(Bruger b : brugerListe) {
-            if (b.getBrugernavn().equals("admin")) createAdmin = false;
+            if (b.getBrugernavn().equals("admin")) createDef = false;
         }
-        if (createAdmin) brugerListe.add(new Admin("Systemadministrator","admin",Admin.DEF_ADMIN_KODE));
+        if (createDef) {
+            brugerListe.add(new Admin("Systemadministrator","admin",Admin.DEF_ADMIN_KODE));
+            brugerListe.add(new Læge("Læge","læge",Læge.DEF_LÆGE_KODE));
+            brugerListe.add(new Sygeplejerske("Sygeplejerske","sygp",Sygeplejerske.DEF_SYGP_KODE));
+            brugerListe.add(new Personel("Personel","pers",Personel.DEF_PERS_KODE));
+        }
         new SygehusGUI();
     }
 
