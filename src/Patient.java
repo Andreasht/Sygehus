@@ -3,7 +3,7 @@ import static andUtils.Serializer.*;
 import java.io.File;
 import java.util.ArrayList;
 
-public class  Patient implements java.io.Serializable {
+public class Patient implements java.io.Serializable {
     public static ArrayList<Patient> patientListe = new ArrayList<>();
     private String navn;
     private boolean erIndlagt;
@@ -77,7 +77,7 @@ public class  Patient implements java.io.Serializable {
 
     void opretJournal(String in) {
         journal = new Journal(this, in);
-        harJournal = true;
+        this.setHarJournal(true);
     }
 
     void setISeng(boolean b) {

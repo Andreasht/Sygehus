@@ -29,24 +29,17 @@ class SygehusSystem {
         }
         File listFile = new File("Data/brugerListe.ser");
         if (!listFile.exists()) {
-            System.out.println("Liste ikke fundet. ArrayList bliver initialiseret.");
             brugerListe = new ArrayList<>();
 
         } else {
-            System.out.println("Liste fundet. Loader liste.");
             loadList();
-            System.out.println("Liste loadet.");
         }
         Patient.loadPatientList();
-        System.out.println("Patientliste blev loadet.");
         boolean createAdmin = true;
-        boolean createLæge = true;
         for(Bruger b : brugerListe) {
             if (b.getBrugernavn().equals("admin")) createAdmin = false;
-            if (b.getBrugernavn().equals("læge")) createLæge = false;
         }
         if (createAdmin) brugerListe.add(new Admin("Systemadministrator","admin",Admin.DEF_ADMIN_KODE));
-        if (createLæge) brugerListe.add(new Læge("Test-læge","læge",Læge.DEF_LÆGE_KODE));
         new SygehusGUI();
     }
 
@@ -300,13 +293,11 @@ class SygehusSystem {
             profileButtons.add(new JButton("Opret ny bruger"));
             profileButtons.add(new JButton("Se liste over brugere"));
             profileButtons.add(new JButton("Sæt din status"));
-            profileButtons.add(new JButton("Administrer roller"));
             profileButtons.add(new JButton("Åben personlig mappe"));
             profileButtons.get(0).addActionListener(e -> drawSignup());
             profileButtons.get(1).addActionListener(e -> drawUserList());
             profileButtons.get(2).addActionListener(e -> drawStatusBox());
-            profileButtons.get(3).addActionListener(e -> new PopUp().infoBox("Placeholder"));
-            profileButtons.get(4).addActionListener(e -> activeBruger.åbenMappe());
+            profileButtons.get(3).addActionListener(e -> activeBruger.åbenMappe());
             drawProfileButtons();
 
             refreshFrame();
